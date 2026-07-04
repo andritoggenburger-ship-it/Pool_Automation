@@ -1,0 +1,140 @@
+substitutions:
+  node_name: pond-node-1
+  friendly_name: Pond Node 1
+
+  wifi_ssid: "REPLACE_WIFI_SSID"
+  wifi_password: "REPLACE_WIFI_PASSWORD"
+  fallback_password: "REPLACE_FALLBACK_PASSWORD"
+
+  api_key: "REPLACE_BASE64_API_KEY"
+  ota_password: "REPLACE_OTA_PASSWORD"
+
+  # Replace with your real DS18B20 ROM addresses after first discovery
+  ds18_addr_1: "0x0000000000000001"
+  ds18_addr_2: "0x0000000000000002"
+  ds18_addr_3: "0x0000000000000003"
+
+esphome:
+  name: ${node_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32-c6-devkitc-1
+  framework:
+    type: esp-idf
+
+logger:
+
+api:
+  encryption:
+    key: ${api_key}
+
+ota:
+  - platform: esphome
+    password: ${ota_password}
+
+wifi:
+  ssid: ${wifi_ssid}
+  password: ${wifi_password}
+  power_save_mode: none
+  ap:
+    ssid: "${friendly_name} Fallback"
+    password: ${fallback_password}
+
+captive_portal:
+
+i2c:
+  sda: GPIO8
+  scl: GPIO9
+  scan: true
+  frequency: 100kHz
+
+one_wire:
+  - platform: gpio
+    pin: GPIO10
+
+interval:
+  - interval: 300s
+    then:
+      - component.update: temp_1
+      - component.update: temp_2
+      - component.update: temp_3
+      - component.update: ina_current
+      - component.update: ina_bus_v
+      - component.update: ina_power
+      - component.update: water_depth
+
+sensor:
+  - platform: ina219
+    address: 0x40
+    shunt_resistance: 0.1 ohm
+    max_voltage: 26.0V
+    max_current: 0.4A
+    current:
+      id: ina_current
+      name: Pond Sensor Current
+      unit_of_measurement: mA
+      accuracy_decimals: 2
+      filters:
+        - multiply: 1000.0
+      update_interval: never
+    bus_voltage:
+      id: ina_bus_v
+      name: Pond Sensor Bus Voltage
+      accuracy_decimals: 2
+      update_interval: never
+    power:
+      id: ina_power
+      name: Pond Sensor Power
+      accuracy_decimals: 2
+      update_interval: never
+
+  - platform: template
+    id: water_depth
+    name: Pond Water Depth
+    unit_of_measurement: m
+    accuracy_decimals: 2
+    update_interval: never
+    lambda: |-
+      float current_ma = id(ina_current).state;
+      if (isnan(current_ma)) {
+        return NAN;
+      }
+      if (current_ma < 4.0f) current_ma = 4.0f;
+      if (current_ma > 20.0f) current_ma = 20.0f;
+      return (current_ma - 4.0f) * (5.0f / 16.0f);  // 4-20mA -> 0-5m
+
+  - platform: dallas_temp
+    id: temp_1
+    name: Pond Temp Sensor 1
+    address: ${ds18_addr_1}
+    update_interval: never
+
+  - platform: dallas_temp
+    id: temp_2
+    name: Pond Temp Sensor 2
+    address: ${ds18_addr_2}
+    update_interval: never
+
+  - platform: dallas_temp
+    id: temp_3
+    name: Pond Temp Sensor 3
+    address: ${ds18_addr_3}
+    update_interval: never
+
+  - platform: wifi_signal
+    name: Pond Node WiFi RSSI
+    update_interval: 300s
+
+  - platform: uptime
+    name: Pond Node Uptime
+    update_interval: 300s
+
+binary_sensor:
+  - platform: status
+    name: Pond Node Status
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: Pond Node IP
