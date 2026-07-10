@@ -36,8 +36,8 @@ DEVICE_ID = "water_tank_sensor"
 
 # GPIO Configuration
 ONE_WIRE_GPIO = 10  # DS18B20 data pin
-I2C_SDA_GPIO = 8
-I2C_SCL_GPIO = 9
+I2C_SDA_GPIO = 20
+I2C_SCL_GPIO = 21
 
 # Sensor Configuration
 INA219_ADDRESS = 0x40  # GY-INA219 I2C address

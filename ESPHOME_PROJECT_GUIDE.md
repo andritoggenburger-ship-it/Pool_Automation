@@ -29,9 +29,10 @@ Important note:
 
 Use the same pin plan you already defined:
 - One-wire data: GPIO10
-- I2C SDA: GPIO8
-- I2C SCL: GPIO9
+- I2C SDA: GPIO20
+- I2C SCL: GPIO21
 - DS18B20 pull-up: external 4.7k resistor from GPIO10 to 3.3V
+- GPIO8 reserved for onboard WS2812 status LED
 
 Power topology:
 - 24V supply powers water sensor directly
@@ -134,8 +135,8 @@ interval:
 
 # I2C for INA219
 i2c:
-  sda: GPIO8
-  scl: GPIO9
+  sda: GPIO20
+  scl: GPIO21
   scan: true
   frequency: 100kHz
 
@@ -302,7 +303,7 @@ This is the ESPHome equivalent of appliance-like update behavior.
 
 Problem: INA219 not found
 - Confirm I2C address is 0x40.
-- Check GPIO8 and GPIO9 wiring.
+- Check GPIO20 and GPIO21 wiring.
 - Lower I2C frequency to 50 kHz temporarily.
 
 Problem: DS18B20 missing or unstable

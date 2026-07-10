@@ -16,8 +16,10 @@ Complete MicroPython firmware for monitoring a water tank with:
 | Component | GPIO Pin | Function |
 |-----------|----------|----------|
 | DS18B20 (1-wire) | GPIO 10 | Data line (requires 4.7kΩ pull-up to 3.3V) |
-| I2C SDA | GPIO 8 | I2C Data |
-| I2C SCL | GPIO 9 | I2C Clock |
+| I2C SDA | GPIO 20 | I2C Data |
+| I2C SCL | GPIO 21 | I2C Clock |
+
+Note: GPIO 8 is reserved for the onboard WS2812 RGB LED in the current ESPHome heartbeat setup.
 
 ### Wiring Diagram
 
@@ -31,8 +33,8 @@ ESP32-C6 Zero
 │           ├─ DS18B20 #2 (data pin)     │
 │           └─ DS18B20 #3 (data pin)     │
 │                                         │
-│  GPIO 8  ──────── SDA ─── INA219       │
-│  GPIO 9  ──────── SCL ─── INA219       │
+│  GPIO 20 ──────── SDA ─── INA219       │
+│  GPIO 21 ──────── SCL ─── INA219       │
 │  GND     ──────── GND                  │
 │  3.3V    ──────── VCC                  │
 │                                         │
@@ -179,7 +181,7 @@ print(temps)
 
 # Scan I2C devices
 from machine import I2C, Pin
-i2c = I2C(0, scl=Pin(9), sda=Pin(8))
+i2c = I2C(0, scl=Pin(21), sda=Pin(20))
 print([hex(x) for x in i2c.scan()])
 ```
 
@@ -208,12 +210,12 @@ print(pin.value())  # Should read 1 (HIGH)
 
 ### INA219 Not Found
 
-1. Check I2C connections (SDA=GPIO8, SCL=GPIO9)
+1. Check I2C connections (SDA=GPIO20, SCL=GPIO21)
 2. Verify pull-up resistors on I2C lines (often built into sensor board)
 3. Test with WebREPL:
 ```python
 from machine import I2C, Pin
-i2c = I2C(0, scl=Pin(9), sda=Pin(8), freq=400000)
+i2c = I2C(0, scl=Pin(21), sda=Pin(20), freq=400000)
 devices = i2c.scan()
 print([hex(x) for x in devices])  # Should include 0x40
 ```

@@ -95,13 +95,13 @@ INA219 Board          ESP32-C6
 ┌────────────────┐
 │ VCC ─────────────── 3.3V (from ESP32)
 │ GND ─────────────── GND (from ESP32)
-│ SCL ───────────────► GPIO 9  (I2C Clock)
-│ SDA ───────────────► GPIO 8  (I2C Data)
+│ SCL ───────────────► GPIO 21 (I2C Clock)
+│ SDA ───────────────► GPIO 20 (I2C Data)
 └────────────────┘
 
 Optional: Add 4.7kΩ pull-ups on SDA/SCL if not on board:
-   3.3V ──[4.7kΩ]── SDA (GPIO 8)
-   3.3V ──[4.7kΩ]── SCL (GPIO 9)
+    3.3V ──[4.7kΩ]── SDA (GPIO 20)
+    3.3V ──[4.7kΩ]── SCL (GPIO 21)
 ```
 
 ### 3. Water Level Sensor (4-20mA) + INA219
@@ -150,8 +150,8 @@ INA219 Shunt Connections (green terminal block)
 | ESP32 GND | INA219 GND | Ground | GND |
 | ESP32 GND | DS18B20 GND × 3 | Ground | GND |
 | ESP32 GPIO 10 | DS18B20 × 3 data | One-wire data | 3.3V (pulled up via 4.7kΩ) |
-| ESP32 GPIO 8 (SDA) | INA219 SDA | I2C data | 3.3V |
-| ESP32 GPIO 9 (SCL) | INA219 SCL | I2C clock | 3.3V |
+| ESP32 GPIO 20 (SDA) | INA219 SDA | I2C data | 3.3V |
+| ESP32 GPIO 21 (SCL) | INA219 SCL | I2C clock | 3.3V |
 | Water Sensor Signal | INA219 IN+ | 4-20mA current | 0-24V analog |
 
 **Simplified ESP32 Pin Usage:**
@@ -160,8 +160,8 @@ ESP32 USB Port    ← Buck Converter USB 5V (main power)
 ESP32 3.3V pin    → INA219 VCC + DS18B20 VCC × 3
 ESP32 GND pin     → All sensors + 24V supply GND (common)
 ESP32 GPIO 10     → DS18B20 × 3 data (with 4.7kΩ pull-up to 3.3V)
-ESP32 GPIO 8 SDA  → INA219 SDA
-ESP32 GPIO 9 SCL  → INA219 SCL
+ESP32 GPIO 20 SDA → INA219 SDA
+ESP32 GPIO 21 SCL → INA219 SCL
 ```
 
 ## Cable Length Recommendations
@@ -169,7 +169,7 @@ ESP32 GPIO 9 SCL  → INA219 SCL
 | Cable | Length | Type | Notes |
 |-------|--------|------|-------|
 | One-Wire (GPIO 10 to sensors) | 3m | Shielded twisted pair | Use external 4.7kΩ pull-up |
-| I2C (GPIO 8/9 to INA219) | 1m | Twisted pair + shield | Keep short if possible |
+| I2C (GPIO 20/21 to INA219) | 1m | Twisted pair + shield | Keep short if possible |
 | Water sensor (to INA219) | 5m (built-in) | 4-20mA current loop | Less susceptible to noise |
 
 ## Signal Line Protection (Optional but Recommended)
@@ -243,8 +243,8 @@ I2C Lines:
 
 2. **Continuity Check** (with multimeter)
    - One-Wire: GPIO 10 → all sensor data pins
-   - I2C SDA: GPIO 8 → INA219 SDA
-   - I2C SCL: GPIO 9 → INA219 SCL
+    - I2C SDA: GPIO 20 → INA219 SDA
+    - I2C SCL: GPIO 21 → INA219 SCL
    - All GNDs connected
 
 3. **Power-On Test**
@@ -263,7 +263,7 @@ I2C Lines:
    
    # I2C devices
    from machine import I2C, Pin
-   i2c = I2C(0, scl=Pin(9), sda=Pin(8), freq=400000)
+    i2c = I2C(0, scl=Pin(21), sda=Pin(20), freq=400000)
    print([hex(x) for x in i2c.scan()])  # Should show 0x40
    ```
 
