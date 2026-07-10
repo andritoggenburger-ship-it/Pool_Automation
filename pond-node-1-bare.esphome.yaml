@@ -9,8 +9,8 @@ substitutions:
   depth_cal_max_m: "5.0"       # Maximum depth in meters
   depth_cal_offset_m: "0.0"    # Optional trim offset after scaling
 
-  # Replace with the discovered DS18B20 ROM from ESPHome logs.
-  ds18_addr_1: "0x0000000000000001"
+  # DS18B20 calibration/discovery values
+  ds18_addr_1: "0x08000000ca532328"
 
 esphome:
   name: ${node_name}
@@ -60,7 +60,7 @@ i2c:
 
 one_wire:
   - platform: gpio
-    pin: GPIO10
+    pin: GPIO19
 
 sensor:
   - platform: wifi_signal
@@ -117,7 +117,7 @@ sensor:
       return depth_m;
 
   - platform: dallas_temp
-    name: Pond Temp Sensor 1
+    name: Pond Water Temp Deep
     address: ${ds18_addr_1}
     update_interval: 30s
 
