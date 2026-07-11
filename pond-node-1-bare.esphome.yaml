@@ -75,6 +75,22 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'false'
+  - id: pond_depth_displayed_m
+    type: float
+    restore_value: no
+    initial_value: 'NAN'
+  - id: pond_depth_has_displayed
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  - id: pond_depth_pending_direction
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: pond_depth_pending_since_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
 
 sensor:
   - platform: wifi_signal
@@ -101,6 +117,13 @@ sensor:
       accuracy_decimals: 2
       filters:
         - multiply: 1000.0
+        - median:
+            window_size: 5
+            send_every: 1
+            send_first_at: 1
+        - exponential_moving_average:
+            alpha: 0.3
+            send_every: 1
 
   - platform: template
     name: Pond Water Depth
@@ -115,6 +138,8 @@ sensor:
       const float min_m = ${depth_cal_min_m};
       const float max_m = ${depth_cal_max_m};
       const float offset_m = ${depth_cal_offset_m};
+      const float display_step_m = 0.01f;
+      const uint32_t hold_time_ms = 300000UL;
 
       float current_ma = id(pond_sensor_current_ma).state;
       if (isnan(current_ma)) {
@@ -132,7 +157,41 @@ sensor:
       if (depth_m < min_m) depth_m = min_m;
       if (depth_m > max_m) depth_m = max_m;
 
-      return depth_m;
+      if (!id(pond_depth_has_displayed) || isnan(id(pond_depth_displayed_m))) {
+        id(pond_depth_displayed_m) = depth_m;
+        id(pond_depth_has_displayed) = true;
+        id(pond_depth_pending_direction) = 0;
+        id(pond_depth_pending_since_ms) = 0;
+        return id(pond_depth_displayed_m);
+      }
+
+      float delta_m = depth_m - id(pond_depth_displayed_m);
+      if (delta_m < 0.0f) delta_m = -delta_m;
+
+      // Only start/continue a pending display change when raw depth stays at least
+      // 0.01 m away from the currently displayed value.
+      if (delta_m < display_step_m) {
+        id(pond_depth_pending_direction) = 0;
+        id(pond_depth_pending_since_ms) = 0;
+        return id(pond_depth_displayed_m);
+      }
+
+      const int direction = (depth_m > id(pond_depth_displayed_m)) ? 1 : -1;
+      const uint32_t now_ms = millis();
+
+      if (id(pond_depth_pending_direction) != direction) {
+        id(pond_depth_pending_direction) = direction;
+        id(pond_depth_pending_since_ms) = now_ms;
+        return id(pond_depth_displayed_m);
+      }
+
+      if ((now_ms - id(pond_depth_pending_since_ms)) >= hold_time_ms) {
+        id(pond_depth_displayed_m) = depth_m;
+        id(pond_depth_pending_direction) = 0;
+        id(pond_depth_pending_since_ms) = 0;
+      }
+
+      return id(pond_depth_displayed_m);
 
   - platform: dallas_temp
     id: pond_temp_deep_raw
