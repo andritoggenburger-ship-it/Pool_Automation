@@ -10,7 +10,8 @@ substitutions:
   depth_cal_offset_m: "0.03"   # Calibrated trim offset after scaling
 
   # DS18B20 calibration/discovery values
-  ds18_addr_1: "0x08000000ca532328"
+  ds18_addr_1: "0x08000000ca532328"  # Deep sensor
+  ds18_addr_2: "0x68000000ca317728"  # Skimmer sensor
 
 esphome:
   name: ${node_name}
@@ -76,6 +77,18 @@ globals:
     restore_value: no
     initial_value: 'NAN'
   - id: pond_temp_deep_has_last_valid
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  - id: pond_temp_skimmer_error_count
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: pond_temp_skimmer_last_valid
+    type: float
+    restore_value: no
+    initial_value: 'NAN'
+  - id: pond_temp_skimmer_has_last_valid
     type: bool
     restore_value: no
     initial_value: 'false'
@@ -203,6 +216,12 @@ sensor:
     address: ${ds18_addr_1}
     update_interval: 30s
 
+  - platform: dallas_temp
+    id: pond_temp_skimmer_raw
+    internal: true
+    address: ${ds18_addr_2}
+    update_interval: 30s
+
   - platform: template
     id: pond_temp_deep
     name: Pond Water Temp Deep
@@ -226,6 +245,33 @@ sensor:
       // Keep last valid value through up to 3 consecutive read errors.
       if (id(pond_temp_deep_has_last_valid) && id(pond_temp_deep_error_count) <= 3) {
         return id(pond_temp_deep_last_valid);
+      }
+
+      return NAN;
+
+  - platform: template
+    id: pond_temp_skimmer
+    name: Pond Water Temp Skimmer
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 2
+    update_interval: 30s
+    lambda: |-
+      float raw = id(pond_temp_skimmer_raw).state;
+
+      if (!isnan(raw)) {
+        id(pond_temp_skimmer_last_valid) = raw;
+        id(pond_temp_skimmer_has_last_valid) = true;
+        id(pond_temp_skimmer_error_count) = 0;
+        return raw;
+      }
+
+      id(pond_temp_skimmer_error_count) += 1;
+
+      // Keep last valid value through up to 3 consecutive read errors.
+      if (id(pond_temp_skimmer_has_last_valid) && id(pond_temp_skimmer_error_count) <= 3) {
+        return id(pond_temp_skimmer_last_valid);
       }
 
       return NAN;
