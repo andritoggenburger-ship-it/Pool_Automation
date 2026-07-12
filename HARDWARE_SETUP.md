@@ -5,7 +5,7 @@
 | Item | Qty | Notes |
 |------|-----|-------|
 | WaveShare ESP32-C6 Zero | 1 | Main microcontroller |
-| DS18B20 Temperature Sensor | 3 | Waterproof probe version recommended |
+| DS18B20 Temperature Sensor | 2 | Waterproof probe version recommended |
 | GY-INA219 I2C Current Sensor | 1 | With 0.1Ω shunt resistor |
 | 4-20mA Water Level Sensor | 1 | 5M range, 24V compatible |
 | Resistor 4.7kΩ 1/4W | 1 | One-wire pull-up (essential for 3m cable) |
@@ -43,7 +43,7 @@ Buck Converter Module Output:
 Once ESP32 is powered via USB, it provides 3.3V for sensors:
 ```
 ESP32 3.3V pin ───► INA219 VCC
-ESP32 3.3V pin ───► DS18B20 VCC × 3
+ESP32 3.3V pin ───► DS18B20 VCC × 2
 ESP32 GND pin ────► All sensor grounds (common GND)
 ```
 
@@ -55,22 +55,17 @@ ESP32 GND pin ────► All sensor grounds (common GND)
 
 ### 1. One-Wire Temperature Sensors (DS18B20)
 
-**Single Bus Configuration** (all 3 sensors share same data line)
+**Single Bus Configuration** (both sensors share same data line)
 
 ```
-ESP32 GPIO 10 ──[4.7kΩ Pull-up]── +3.3V
+ESP32 GPIO 19 ──[4.7kΩ Pull-up]── +3.3V
       |
-      ├─── DS18B20 #1
+    ├─── DS18B20 Deep
       |     ├─ Data (middle pin)
       |     ├─ GND (left pin)
       |     └─ VCC (right pin)
       |
-      ├─── DS18B20 #2
-      |     ├─ Data (middle pin)
-      |     ├─ GND (left pin)
-      |     └─ VCC (right pin)
-      |
-      └─── DS18B20 #3
+    └─── DS18B20 Skimmer
             ├─ Data (middle pin)
             ├─ GND (left pin)
             └─ VCC (right pin)
@@ -88,7 +83,7 @@ This project mapping is intentionally kept here as-built so it is easy to reprod
 
 **Pull-up Resistor Installation:**
 ```
-+3.3V ───[4.7kΩ]───┬─── GPIO 10
++3.3V ───[4.7kΩ]───┬─── GPIO 19
                    │
               100nF capacitor
                    │
@@ -151,12 +146,12 @@ INA219 Shunt Connections (green terminal block)
 | 24V Supply - | Buck Converter IN- | Ground/Return | GND |
 | Buck Converter USB | ESP32 USB Port | Main power | 5V |
 | **ESP32 3.3V** | **INA219 VCC** | **Sensor power** | **3.3V** |
-| **ESP32 3.3V** | **DS18B20 VCC × 3** | **Sensor power** | **3.3V** |
+| **ESP32 3.3V** | **DS18B20 VCC × 2** | **Sensor power** | **3.3V** |
 | **24V Supply +** | **Water Sensor VCC** | **Water sensor power** | **24V** |
 | 24V Supply - | Water Sensor GND | Water sensor return | GND |
 | ESP32 GND | INA219 GND | Ground | GND |
-| ESP32 GND | DS18B20 GND × 3 | Ground | GND |
-| ESP32 GPIO 10 | DS18B20 × 3 data | One-wire data | 3.3V (pulled up via 4.7kΩ) |
+| ESP32 GND | DS18B20 GND × 2 | Ground | GND |
+| ESP32 GPIO 19 | DS18B20 × 2 data | One-wire data | 3.3V (pulled up via 4.7kΩ) |
 | ESP32 GPIO 20 (SDA) | INA219 SDA | I2C data | 3.3V |
 | ESP32 GPIO 21 (SCL) | INA219 SCL | I2C clock | 3.3V |
 | Water Sensor Signal | INA219 IN+ | 4-20mA current | 0-24V analog |
@@ -164,9 +159,9 @@ INA219 Shunt Connections (green terminal block)
 **Simplified ESP32 Pin Usage:**
 ```
 ESP32 USB Port    ← Buck Converter USB 5V (main power)
-ESP32 3.3V pin    → INA219 VCC + DS18B20 VCC × 3
+ESP32 3.3V pin    → INA219 VCC + DS18B20 VCC × 2
 ESP32 GND pin     → All sensors + 24V supply GND (common)
-ESP32 GPIO 10     → DS18B20 × 3 data (with 4.7kΩ pull-up to 3.3V)
+ESP32 GPIO 19     → DS18B20 × 2 data (with 4.7kΩ pull-up to 3.3V)
 ESP32 GPIO 20 SDA → INA219 SDA
 ESP32 GPIO 21 SCL → INA219 SCL
 ```
@@ -175,7 +170,7 @@ ESP32 GPIO 21 SCL → INA219 SCL
 
 | Cable | Length | Type | Notes |
 |-------|--------|------|-------|
-| One-Wire (GPIO 10 to sensors) | 3m | Shielded twisted pair | Use external 4.7kΩ pull-up |
+| One-Wire (GPIO 19 to sensors) | 3m | Shielded twisted pair | Use external 4.7kΩ pull-up |
 | I2C (GPIO 20/21 to INA219) | 1m | Twisted pair + shield | Keep short if possible |
 | Water sensor (to INA219) | 5m (built-in) | 4-20mA current loop | Less susceptible to noise |
 
@@ -184,7 +179,7 @@ ESP32 GPIO 21 SCL → INA219 SCL
 For harsh outdoor/pond environment:
 
 ```
-GPIO 10 Data Line:
+GPIO 19 Data Line:
     ESP32 ──[100Ω]──┬─── Sensor Data
                     │
                   Ferrite bead (optional)
@@ -232,7 +227,7 @@ I2C Lines:
 ## Assembly Checklist
 
 - [ ] ESP32-C6 Zero board
-- [ ] 3× DS18B20 sensors with waterproof probes
+- [ ] 2× DS18B20 sensors with waterproof probes
 - [ ] GY-INA219 board
 - [ ] 4-20mA water depth sensor
 - [ ] 4.7kΩ pull-up resistor for one-wire
@@ -249,7 +244,7 @@ I2C Lines:
    - Correct polarity on power
 
 2. **Continuity Check** (with multimeter)
-   - One-Wire: GPIO 10 → all sensor data pins
+    - One-Wire: GPIO 19 → all sensor data pins
     - I2C SDA: GPIO 20 → INA219 SDA
     - I2C SCL: GPIO 21 → INA219 SCL
    - All GNDs connected
@@ -266,7 +261,7 @@ I2C Lines:
    from onewire import OneWire
    ds_pin = Pin(10, Pin.IN, Pin.PULL_UP)
    ow = OneWire(ds_pin)
-   print(ow.scan())  # Should show 3 device addresses
+    print(ow.scan())  # Should show 2 device addresses
    
    # I2C devices
    from machine import I2C, Pin
@@ -279,7 +274,7 @@ I2C Lines:
 ### Problem: Sensors not detected
 - Check GPIO pin numbers match code
 - Verify pull-up resistor present for one-wire
-- Test with multimeter: GPIO 10 should be ~3.3V when idle
+- Test with multimeter: GPIO 19 should be ~3.3V when idle
 - For I2C: both lines should be ~3.3V when idle
 
 ### Problem: Intermittent readings

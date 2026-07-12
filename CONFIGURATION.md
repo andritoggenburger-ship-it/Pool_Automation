@@ -1,4 +1,15 @@
-# Configuration Template for ESP32 Water Tank Monitor
+# Configuration Template for Legacy MicroPython ESP32 Water Tank Monitor
+
+This file documents the older `main.py`-based MicroPython setup.
+
+The active pond node configuration is now ESPHome-based and lives in [pond-node-1-bare.esphome.yaml](c:/Users/toggenan/OneDrive%20-%20BELIMO%20Automation%20AG/Desktop/Pool-Automation/pond-node-1-bare.esphome.yaml).
+
+Current active ESPHome differences from the legacy template:
+- One-wire data pin is `GPIO19`
+- I2C pins are `GPIO20` / `GPIO21`
+- Two DS18B20 sensors are used: deep and skimmer
+- Home Assistant integration uses ESPHome native API
+- Water depth uses calibrated span/offset plus delayed display update logic
 
 ## Quick Start Configuration
 
@@ -28,9 +39,9 @@ DEVICE_ID = "water_tank_sensor"         # Unique device ID
 HA_DISCOVERY_PREFIX = "homeassistant"   # Standard prefix (don't change)
 
 # GPIO Pin Configuration (default recommended, change only if needed)
-ONE_WIRE_GPIO = 10                      # DS18B20 one-wire data pin
-I2C_SDA_GPIO = 8                        # I2C data pin
-I2C_SCL_GPIO = 9                        # I2C clock pin
+ONE_WIRE_GPIO = 19                      # DS18B20 one-wire data pin (legacy template differs from active YAML path)
+I2C_SDA_GPIO = 20                       # I2C data pin
+I2C_SCL_GPIO = 21                       # I2C clock pin
 
 # I2C Sensor Configuration
 INA219_ADDRESS = 0x40                   # GY-INA219 address (default)
@@ -204,9 +215,9 @@ def current_to_depth(current_ma):
     return depth
 ```
 
-## Default MQTT Topics
+## Legacy MQTT Topics
 
-The script publishes to these topics by default:
+These topics apply only to the older `main.py`-based MicroPython path:
 
 ```
 homeassistant/sensor/water_tank_sensor/temp_1/config

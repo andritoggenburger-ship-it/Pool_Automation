@@ -5,10 +5,12 @@
 This guide explains how to implement your existing pond project with ESPHome on a WaveShare ESP32-C6 Zero.
 
 Project scope:
-- 3 x DS18B20 temperature sensors on one shared one-wire bus
+- 2 x DS18B20 temperature sensors on one shared one-wire bus
+- Deep sensor and skimmer sensor exposed separately in Home Assistant
 - 1 x INA219 over I2C
 - 1 x 4-20 mA water level sensor, powered by 24V, measured through INA219
-- 5-minute sensor update interval
+- 30-second sensor updates
+- 5-minute delayed display update for water depth changes >= 0.01 m
 - Integration with Home Assistant Green
 - Remote updates over WiFi
 
@@ -28,10 +30,10 @@ Important note:
 ## Hardware Mapping
 
 Use the same pin plan you already defined:
-- One-wire data: GPIO10
+- One-wire data: GPIO19
 - I2C SDA: GPIO20
 - I2C SCL: GPIO21
-- DS18B20 pull-up: external 4.7k resistor from GPIO10 to 3.3V
+- DS18B20 pull-up: external 4.7k resistor from GPIO19 to 3.3V
 - GPIO8 reserved for onboard WS2812 status LED
 
 Power topology:
@@ -49,7 +51,9 @@ Power topology:
 2. ESPHome computes derived sensor:
 - Water depth from current using linear mapping
 - 4 mA -> 0.0 m
-- 20 mA -> 5.0 m
+- 20 mA -> calibrated span with `depth_cal_max_m = 3.0769`
+- Ground-reference correction via `depth_cal_offset_m = 0.94`
+- Display update held for 5 minutes unless the new level stays at least 0.01 m away
 
 3. Home Assistant receives entities automatically via ESPHome API.
 
@@ -83,145 +87,47 @@ If board profile naming differs by release, use a compatible ESP32-C6 board entr
 
 ## Step 3: Use This ESPHome Configuration
 
-Create or replace the YAML with the following base. Then adjust names and addresses if needed.
+Use [pond-node-1-bare.esphome.yaml](c:/Users/toggenan/OneDrive%20-%20BELIMO%20Automation%20AG/Desktop/Pool-Automation/pond-node-1-bare.esphome.yaml) as the active configuration. Keep the following implementation details in sync with that file.
+
+Current config summary:
 
 ```yaml
-esphome:
-  name: pond-node-1
-  friendly_name: Pond Node 1
+one_wire:
+  - platform: gpio
+    pin: GPIO19
 
-esp32:
-  board: esp32-c6-devkitc-1
-  framework:
-    type: esp-idf
-
-# Logging and management
-logger:
-
-api:
-  encryption:
-    key: "REPLACE_WITH_GENERATED_KEY"
-
-ota:
-  - platform: esphome
-    password: "REPLACE_WITH_OTA_PASSWORD"
-
-wifi:
-  ssid: "REPLACE_WIFI_SSID"
-  password: "REPLACE_WIFI_PASSWORD"
-  power_save_mode: none
-  ap:
-    ssid: "Pond-Node-Fallback"
-    password: "REPLACE_FALLBACK_PASSWORD"
-
-captive_portal:
-
-# Optional static IP
-# manual_ip:
-#   static_ip: 192.168.1.50
-#   gateway: 192.168.1.1
-#   subnet: 255.255.255.0
-
-# Keep updates every 5 minutes where possible
-interval:
-  - interval: 300s
-    then:
-      - component.update: ds18b20_1
-      - component.update: ds18b20_2
-      - component.update: ds18b20_3
-      - component.update: ina219_current
-      - component.update: ina219_bus_voltage
-      - component.update: ina219_power
-
-# I2C for INA219
 i2c:
   sda: GPIO20
   scl: GPIO21
-  scan: true
   frequency: 100kHz
-
-# One-wire bus
-one_wire:
-  - platform: gpio
-    pin: GPIO10
 
 sensor:
   - platform: ina219
-    address: 0x40
-    shunt_resistance: 0.1 ohm
-    max_voltage: 26.0V
-    max_current: 0.4A
-    current:
-      name: Pond Sensor Current
-      id: ina219_current
-      unit_of_measurement: mA
-      accuracy_decimals: 2
-      filters:
-        - multiply: 1000.0
-      update_interval: never
-    bus_voltage:
-      name: Pond Sensor Bus Voltage
-      id: ina219_bus_voltage
-      update_interval: never
-    power:
-      name: Pond Sensor Power
-      id: ina219_power
-      update_interval: never
+    update_interval: 30s
 
-  # Derived depth from 4-20 mA -> 0-5 m
   - platform: template
     name: Pond Water Depth
-    id: pond_depth
-    unit_of_measurement: m
-    accuracy_decimals: 2
-    update_interval: 300s
-    lambda: |-
-      float current_ma = id(ina219_current).state;
-
-      if (isnan(current_ma)) {
-        return NAN;
-      }
-
-      // Clamp to expected range
-      if (current_ma < 4.0f) current_ma = 4.0f;
-      if (current_ma > 20.0f) current_ma = 20.0f;
-
-      // Linear map: 4mA -> 0m, 20mA -> 5m
-      float depth_m = (current_ma - 4.0f) * (5.0f / 16.0f);
-      return depth_m;
-
-  # DS18B20 sensors on shared bus
-  - platform: dallas_temp
-    address: 0x0000000000000001
-    name: Pond Temp Sensor 1
-    id: ds18b20_1
-    update_interval: never
+    update_interval: 30s
+    # Display changes only after 5 minutes outside a 0.01 m deadband.
 
   - platform: dallas_temp
-    address: 0x0000000000000002
-    name: Pond Temp Sensor 2
-    id: ds18b20_2
-    update_interval: never
+    id: pond_temp_deep_raw
+    address: ${ds18_addr_1}
 
   - platform: dallas_temp
-    address: 0x0000000000000003
-    name: Pond Temp Sensor 3
-    id: ds18b20_3
-    update_interval: never
+    id: pond_temp_skimmer_raw
+    address: ${ds18_addr_2}
 
-  # Device health sensors
-  - platform: wifi_signal
-    name: Pond Node WiFi RSSI
-    update_interval: 300s
+  - platform: template
+    name: Pond Water Temp Deep
 
-  - platform: uptime
-    name: Pond Node Uptime
-    update_interval: 300s
+  - platform: template
+    name: Pond Water Temp Skimmer
 ```
 
 Important:
-- Replace DS18B20 addresses with real discovered addresses after first boot.
-- Address format is device-specific; ESPHome logs will show them.
+- Deep sensor address: `0x08000000ca532328`
+- Skimmer sensor address: `0x68000000ca317728`
 
 ## Step 4: First Flash by USB
 
@@ -236,7 +142,7 @@ After first successful flash, OTA should be available over WiFi.
 
 1. Open ESPHome logs.
 2. Look for discovered one-wire devices.
-3. Copy each real address into the YAML for the three sensors.
+3. Copy each real address into the YAML for the deep and skimmer sensors.
 4. Reinstall OTA.
 
 ## Step 6: Home Assistant Integration
@@ -244,15 +150,13 @@ After first successful flash, OTA should be available over WiFi.
 ESPHome API entities should appear automatically in Home Assistant.
 
 Expected entities:
-- Pond Temp Sensor 1
-- Pond Temp Sensor 2
-- Pond Temp Sensor 3
+- Pond Water Temp Deep
+- Pond Water Temp Skimmer
 - Pond Sensor Current
 - Pond Water Depth
-- Pond Sensor Bus Voltage
-- Pond Sensor Power
 - Pond Node WiFi RSSI
 - Pond Node Uptime
+- Pond Node Restart
 
 ## Step 7: Recommended Home Assistant Automations
 
@@ -278,14 +182,15 @@ This is the ESPHome equivalent of appliance-like update behavior.
 - Keep external 4.7k pull-up.
 - Use twisted pair or shielded cable.
 - Keep ground clean and common.
+- Current active data pin is GPIO19.
 
 2. INA219 measurement path:
 - Ensure current loop actually passes through INA219 shunt path.
 - Validate expected 4-20 mA against multimeter at commissioning.
 
 3. Update interval:
-- 300 s is good for slow-changing pond levels.
-- You can still keep device health sensors at 300 s.
+- Sensors currently update every 30 s.
+- Water depth display changes are intentionally delayed by 5 minutes when the difference is only marginal.
 
 4. Fallback network:
 - Keep fallback AP enabled so recovery is possible if WiFi credentials break.
@@ -295,7 +200,7 @@ This is the ESPHome equivalent of appliance-like update behavior.
 1. Keep existing wiring unchanged.
 2. Flash ESPHome once via USB.
 3. Verify INA219 reads valid current.
-4. Verify all 3 DS18B20 addresses and temperatures.
+4. Verify both DS18B20 addresses and temperatures.
 5. Enable HA automations.
 6. Retire old MicroPython runtime from this device.
 
@@ -308,13 +213,14 @@ Problem: INA219 not found
 
 Problem: DS18B20 missing or unstable
 - Verify 4.7k pull-up to 3.3V.
-- Confirm data pin is GPIO10.
+- Confirm data pin is GPIO19.
 - Check cable joins and waterproof connectors.
 
 Problem: Depth wrong but current looks correct
 - Reconfirm linear mapping and sensor range.
 - Check whether your probe is exactly 0-5 m model.
-- Apply optional calibration offset in template lambda.
+- Adjust `depth_cal_offset_m` for constant reference shifts.
+- Adjust `depth_cal_max_m` if the scale error changes with level.
 
 Problem: OTA fails
 - Ensure device is online and API key/password matches.

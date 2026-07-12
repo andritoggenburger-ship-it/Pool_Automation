@@ -4,10 +4,10 @@
 
 | GPIO | Function | Connected To | Wire Color (Suggested) |
 |------|----------|--------------|----------------------|
-| 3.3V | Power | INA219 VCC, DS18B20 VCC × 3 | Red |
-| GND | Ground | INA219 GND, DS18B20 GND × 3, 24V GND | Black |
+| 3.3V | Power | INA219 VCC, DS18B20 VCC × 2 | Red |
+| GND | Ground | INA219 GND, DS18B20 GND × 2, 24V GND | Black |
 | GPIO 8 | Onboard RGB LED | WS2812 status LED | Purple |
-| GPIO 10 | One-Wire Data | DS18B20 × 3 data lines | Yellow |
+| GPIO 19 | One-Wire Data | DS18B20 deep + skimmer data lines | Yellow |
 | GPIO 20 | I2C SDA | INA219 SDA | Green |
 | GPIO 21 | I2C SCL | INA219 SCL | Blue |
 | USB | Power | Buck Converter 5V USB output | Red/Black |
@@ -38,10 +38,10 @@ TOP VIEW - Left Side (Pin Headers):
 │  GPIO 6     (GPIO)          │ Pin 7
 │  GPIO 7     (GPIO)          │ Pin 8
 │  GPIO 8   ← WS2812 RGB LED  │ Pin 9
-│  GPIO 10  ← ONE-WIRE DATA   │ Pin 11
+│  GPIO 10   (GPIO)           │ Pin 11
 │  GPIO 4    (GPIO)           │ Pin 12
 │  GPIO 18   (GPIO)           │ Pin 13
-│  GPIO 19   (GPIO)           │ Pin 14
+│  GPIO 19  ← ONE-WIRE DATA   │ Pin 14
 │  GPIO 20  ← I2C SDA         │ Pin 15
 │  GPIO 21  ← I2C SCL         │ Pin 16
 │  3.3V     ← POWER (sensors) │ Pin 17
@@ -73,7 +73,7 @@ TOP VIEW - Right Side (USB and GND):
 | GPIO | Pin # | I/O | Special Function | Project Use | Status |
 |------|-------|-----|------------------|------------|--------|
 | 8 | 9 | I/O | WS2812 data (board-specific) | Onboard RGB LED | **Used** ✅ |
-| 10 | 11 | I/O | GPIO | One-Wire Data (DS18B20) | **Used** ✅ |
+| 19 | 14 | I/O | GPIO | One-Wire Data (DS18B20) | **Used** ✅ |
 | 20 | 15 | I/O | GPIO | I2C SDA (INA219) | **Used** ✅ |
 | 21 | 16 | I/O | GPIO | I2C SCL (INA219) | **Used** ✅ |
 
@@ -90,7 +90,7 @@ TOP VIEW - Right Side (USB and GND):
 | 6 | 7 | I/O | GPIO | Available |
 | 7 | 8 | I/O | GPIO | Available |
 | 18 | 13 | I/O | GPIO, SPI | Available |
-| 19 | 14 | I/O | GPIO, SPI | Available |
+| 10 | 11 | I/O | GPIO | Available |
 
 ## Physical Layout
 
@@ -118,12 +118,12 @@ Pin 7:  GPIO 6
 Pin 8:  GPIO 7
 Pin 9:  GPIO 8  ← WS2812 RGB LED (onboard)
 Pin 10: GPIO 9
-Pin 11: GPIO 10 ← ONE-WIRE DATA
+Pin 11: GPIO 10
 Pin 12: GPIO 4
 
 Pin Header Pin Numbers (Right Side):
 Pin 13: GPIO 18
-Pin 14: GPIO 19
+Pin 14: GPIO 19 ← ONE-WIRE DATA
 Pin 15: GPIO 20
 Pin 16: GPIO 21
 Pin 17: 3.3V   ← POWER
@@ -138,11 +138,11 @@ Micro USB: Connected to buck converter 5V USB output
 - [ ] **ESP32 USB Port** ← Buck Converter USB (5V)
 - [ ] **ESP32 Pin 1 (GND)** ← Common GND from 24V supply
 - [ ] **ESP32 Pin 17 (3.3V)** ← INA219 VCC
-- [ ] **ESP32 Pin 17 (3.3V)** ← DS18B20 VCC
-- [ ] **ESP32 Pin 19 (GND)** ← INA219 GND + DS18B20 GND (shared)
+- [ ] **ESP32 Pin 17 (3.3V)** ← DS18B20 Deep VCC + DS18B20 Skimmer VCC
+- [ ] **ESP32 Pin 19 (GND)** ← INA219 GND + both DS18B20 grounds
 - [ ] **ESP32 GPIO 20 (Pin 15)** ← INA219 SDA (I2C data)
 - [ ] **ESP32 GPIO 21 (Pin 16)** ← INA219 SCL (I2C clock)
-- [ ] **ESP32 GPIO 10 (Pin 11)** ← DS18B20 × 3 data (with 4.7kΩ pull-up to Pin 17)
+- [ ] **ESP32 GPIO 19 (Pin 14)** ← DS18B20 deep + skimmer data (with 4.7kΩ pull-up to Pin 17)
 - [ ] **24V Supply GND** ← Common GND (tied to ESP32 GND)
 - [ ] **24V Supply +** ← Water Sensor VCC
 
@@ -153,7 +153,7 @@ Micro USB: Connected to buck converter 5V USB output
 - Max current: ~200mA typical
 - Your project uses:
   - INA219: ~5-10mA
-  - DS18B20 × 3: ~2-5mA each (~10mA total)
+  - DS18B20 × 2: ~2-5mA each (~7mA total typical)
   - **Total: ~20mA (Safe)**
 
 ### GPIO 20 & 21 (I2C Pins)
@@ -162,9 +162,9 @@ Micro USB: Connected to buck converter 5V USB output
 - Internal pull-ups: ~20-50kΩ
 - May need external 4.7kΩ pull-ups for reliable I2C
 
-### GPIO 10 (One-Wire)
+### GPIO 19 (One-Wire)
 - Must have external 4.7kΩ pull-up resistor
-- **Connect between Pin 17 (3.3V) and Pin 11 (GPIO 10)**
+- **Connect between Pin 17 (3.3V) and Pin 14 (GPIO 19)**
 - Critical for 3m cable runs
 
 ### USB Power
@@ -190,11 +190,11 @@ SCL        →  Pin 16      I2C Clock
 DS18B20 Pin    ESP32 Pin       Function
 ──────────────────────────────────────────
 VCC (Red)   →  Pin 17         3.3V Power
-DQ (Yellow) →  Pin 11 (with 4.7k pull-up to Pin 17)
+DQ (Yellow) →  Pin 14 (with 4.7k pull-up to Pin 17)
 GND (Black) →  Pin 1 or 19    Ground
 ```
 
-**All 3 DS18B20 sensors share the same data pin (Pin 11)**
+**Both DS18B20 sensors share the same data pin (Pin 14 / GPIO19)**
 
 ## ESP32-C6 Specifications
 
