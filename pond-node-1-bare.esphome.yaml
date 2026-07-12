@@ -7,7 +7,7 @@ substitutions:
   depth_cal_max_ma: "20.0"     # Current at maximum level
   depth_cal_min_m: "0.0"       # Minimum depth in meters
   depth_cal_max_m: "3.0769"    # Calibrated effective maximum depth in meters
-  depth_cal_offset_m: "0.03"   # Calibrated trim offset after scaling
+  depth_cal_offset_m: "0.94"   # Calibrated trim offset after scaling
 
   # DS18B20 calibration/discovery values
   ds18_addr_1: "0x08000000ca532328"  # Deep sensor
