@@ -60,6 +60,10 @@ i2c:
 
 one_wire:
   - platform: gpio
+    # Pond deep DS18B20 last-meter Ethernet mapping:
+    # data (yellow) -> Ethernet green
+    # ground -> Ethernet green/white
+    # 3.3V -> Ethernet blue
     pin: GPIO19
 
 globals:

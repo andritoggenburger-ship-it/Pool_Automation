@@ -12,6 +12,16 @@
 | GPIO 21 | I2C SCL | INA219 SCL | Blue |
 | USB | Power | Buck Converter 5V USB output | Red/Black |
 
+## Pond Deep Sensor Last-Meter Cable Mapping
+
+For the final 1m segment to the deep DS18B20 sensor, this project uses an Ethernet twisted-pair cable with the following mapping:
+
+- DS18B20 data (yellow) -> Ethernet green
+- DS18B20 ground -> Ethernet green/white
+- DS18B20 3.3V -> Ethernet blue
+
+Keep this mapping unchanged unless rewiring is documented and tested.
+
 ## Full Pinout Diagram
 
 ```

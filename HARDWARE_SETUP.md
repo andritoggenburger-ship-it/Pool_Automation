@@ -79,6 +79,13 @@ All GND pins → ESP32 GND
 All VCC pins → ESP32 3.3V pin
 ```
 
+**Installed Pond Deep Sensor Cable Mapping (last 1m, Ethernet twisted pair):**
+- DS18B20 data (yellow) → Ethernet green
+- DS18B20 GND → Ethernet green/white
+- DS18B20 3.3V → Ethernet blue
+
+This project mapping is intentionally kept here as-built so it is easy to reproduce after maintenance.
+
 **Pull-up Resistor Installation:**
 ```
 +3.3V ───[4.7kΩ]───┬─── GPIO 10
