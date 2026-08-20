@@ -242,8 +242,9 @@ sensor:
     update_interval: 30s
     lambda: |-
       float raw = id(pond_temp_deep_raw).state;
+      const bool is_startup_value = !isnan(raw) && fabsf(raw - 85.0f) < 0.01f;
 
-      if (!isnan(raw)) {
+      if (!isnan(raw) && !is_startup_value) {
         id(pond_temp_deep_last_valid) = raw;
         id(pond_temp_deep_has_last_valid) = true;
         id(pond_temp_deep_error_count) = 0;
@@ -269,8 +270,9 @@ sensor:
     update_interval: 30s
     lambda: |-
       float raw = id(pond_temp_skimmer_raw).state;
+      const bool is_startup_value = !isnan(raw) && fabsf(raw - 85.0f) < 0.01f;
 
-      if (!isnan(raw)) {
+      if (!isnan(raw) && !is_startup_value) {
         id(pond_temp_skimmer_last_valid) = raw;
         id(pond_temp_skimmer_has_last_valid) = true;
         id(pond_temp_skimmer_error_count) = 0;
