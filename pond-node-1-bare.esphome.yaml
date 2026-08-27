@@ -225,14 +225,14 @@ sensor:
     internal: true
     address: ${ds18_addr_1}
     resolution: 11
-    update_interval: 30s
+    update_interval: never
 
   - platform: dallas_temp
     id: pond_temp_skimmer_raw
     internal: true
     address: ${ds18_addr_2}
     resolution: 11
-    update_interval: 30s
+    update_interval: never
 
   - platform: template
     id: pond_temp_deep
@@ -241,7 +241,7 @@ sensor:
     device_class: temperature
     state_class: measurement
     accuracy_decimals: 2
-    update_interval: 30s
+    update_interval: never
     lambda: |-
       float raw = id(pond_temp_deep_raw).state;
       const bool is_startup_value = !isnan(raw) && fabsf(raw - 85.0f) < 0.01f;
@@ -269,7 +269,7 @@ sensor:
     device_class: temperature
     state_class: measurement
     accuracy_decimals: 2
-    update_interval: 30s
+    update_interval: never
     lambda: |-
       float raw = id(pond_temp_skimmer_raw).state;
       const bool is_startup_value = !isnan(raw) && fabsf(raw - 85.0f) < 0.01f;
@@ -309,6 +309,14 @@ light:
     restore_mode: ALWAYS_OFF
 
 interval:
+  - interval: 30s
+    then:
+      - component.update: pond_temp_deep_raw
+      - component.update: pond_temp_deep
+      - delay: 10s
+      - component.update: pond_temp_skimmer_raw
+      - component.update: pond_temp_skimmer
+
   - interval: 3s
     then:
       - if:
