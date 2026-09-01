@@ -255,8 +255,8 @@ sensor:
 
       id(pond_temp_deep_error_count) += 1;
 
-      // Keep last valid value through up to 3 consecutive read errors.
-      if (id(pond_temp_deep_has_last_valid) && id(pond_temp_deep_error_count) <= 3) {
+      // Polling occurs every 30 seconds; report unavailable after 5 minutes.
+      if (id(pond_temp_deep_has_last_valid) && id(pond_temp_deep_error_count) <= 10) {
         return id(pond_temp_deep_last_valid);
       }
 
@@ -283,8 +283,8 @@ sensor:
 
       id(pond_temp_skimmer_error_count) += 1;
 
-      // Keep last valid value through up to 3 consecutive read errors.
-      if (id(pond_temp_skimmer_has_last_valid) && id(pond_temp_skimmer_error_count) <= 3) {
+      // Polling occurs every 30 seconds; report unavailable after 5 minutes.
+      if (id(pond_temp_skimmer_has_last_valid) && id(pond_temp_skimmer_error_count) <= 10) {
         return id(pond_temp_skimmer_last_valid);
       }
 
