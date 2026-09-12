@@ -6,7 +6,7 @@ The active pond node configuration is now ESPHome-based and lives in [pond-node-
 
 Current active ESPHome differences from the legacy template:
 - One-wire data pin is `GPIO19`
-- I2C pins are `GPIO20` / `GPIO21`
+- I2C pins are `GPIO21` / `GPIO22`
 - Two DS18B20 sensors are used: deep and skimmer
 - Home Assistant integration uses ESPHome native API
 - Water depth uses calibrated span/offset plus delayed display update logic
@@ -112,7 +112,7 @@ UPDATE_INTERVAL_SECONDS = 60            # 1 minute for more responsive monitorin
 
 After updating `main.py`, verify your settings:
 
-1. **WiFi SSID**: Ensure it's 2.4GHz (ESP32-C6 doesn't support 5GHz)
+1. **WiFi SSID**: Ensure it's 2.4GHz
 2. **MQTT Broker**: Should be reachable from ESP32
 3. **GPIO Pins**: Match your physical wiring
 4. **Sensor Range**: Verify with your water sensor datasheet

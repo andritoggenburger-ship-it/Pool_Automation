@@ -2,7 +2,7 @@
 
 ## Goal
 
-This guide explains how to implement your existing pond project with ESPHome on a WaveShare ESP32-C6 Zero.
+This guide explains how to implement your existing pond project with ESPHome on a generic ESP32-WROOM-32U 38-pin dev board.
 
 Project scope:
 - 2 x DS18B20 temperature sensors on one shared one-wire bus
@@ -31,10 +31,9 @@ Important note:
 
 Use the same pin plan you already defined:
 - One-wire data: GPIO19
-- I2C SDA: GPIO20
-- I2C SCL: GPIO21
+- I2C SDA: GPIO21
+- I2C SCL: GPIO22
 - DS18B20 pull-up: external 4.7k resistor from GPIO19 to 3.3V
-- GPIO8 reserved for onboard WS2812 status LED
 
 Power topology:
 - 24V supply powers water sensor directly
@@ -63,7 +62,7 @@ Power topology:
 
 - Home Assistant Green installed and online
 - ESPHome add-on installed in Home Assistant
-- ESP32-C6 connected once by USB for first flash
+- ESP32-WROOM-32U connected once by USB for first flash
 - Your WiFi SSID and password
 
 ## Step 1: Install ESPHome Add-on in Home Assistant
@@ -80,10 +79,10 @@ In ESPHome UI:
 1. Click New Device.
 2. Name it, for example pond-node-1.
 3. Select ESP32 platform.
-4. Choose ESP32-C6 board profile if available in your version.
+4. Choose a generic ESP32 DevKit / esp32dev board profile.
 5. Enter WiFi credentials.
 
-If board profile naming differs by release, use a compatible ESP32-C6 board entry and keep framework as esp-idf.
+If board profile naming differs by release, use a compatible generic ESP32 board entry and keep framework as esp-idf.
 
 ## Step 3: Use This ESPHome Configuration
 
@@ -97,8 +96,8 @@ one_wire:
     pin: GPIO19
 
 i2c:
-  sda: GPIO20
-  scl: GPIO21
+  sda: GPIO21
+  scl: GPIO22
   frequency: 100kHz
 
 sensor:
@@ -131,7 +130,7 @@ Important:
 
 ## Step 4: First Flash by USB
 
-1. Connect ESP32-C6 by USB.
+1. Connect ESP32-WROOM-32U by USB.
 2. In ESPHome, click Install.
 3. Choose Plug into this computer or the method supported by your setup.
 4. Flash once over USB.
@@ -208,7 +207,7 @@ This is the ESPHome equivalent of appliance-like update behavior.
 
 Problem: INA219 not found
 - Confirm I2C address is 0x40.
-- Check GPIO20 and GPIO21 wiring.
+- Check GPIO21 and GPIO22 wiring.
 - Lower I2C frequency to 50 kHz temporarily.
 
 Problem: DS18B20 missing or unstable

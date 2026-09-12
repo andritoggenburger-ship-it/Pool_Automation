@@ -4,7 +4,7 @@
 
 | Item | Qty | Notes |
 |------|-----|-------|
-| WaveShare ESP32-C6 Zero | 1 | Main microcontroller |
+| Generic ESP32-WROOM-32U DevKit (38-pin) | 1 | Main microcontroller |
 | DS18B20 Temperature Sensor | 2 | Waterproof probe version recommended |
 | GY-INA219 I2C Current Sensor | 1 | With 0.1Ω shunt resistor |
 | 4-20mA Water Level Sensor | 1 | 5M range, 24V compatible |
@@ -93,17 +93,17 @@ This project mapping is intentionally kept here as-built so it is easy to reprod
 ### 2. I2C Current Sensor (GY-INA219)
 
 ```
-INA219 Board          ESP32-C6
+INA219 Board          ESP32-WROOM-32U
 ┌────────────────┐
 │ VCC ─────────────── 3.3V (from ESP32)
 │ GND ─────────────── GND (from ESP32)
-│ SCL ───────────────► GPIO 21 (I2C Clock)
-│ SDA ───────────────► GPIO 20 (I2C Data)
+│ SCL ───────────────► GPIO 22 (I2C Clock)
+│ SDA ───────────────► GPIO 21 (I2C Data)
 └────────────────┘
 
 Optional: Add 4.7kΩ pull-ups on SDA/SCL if not on board:
-    3.3V ──[4.7kΩ]── SDA (GPIO 20)
-    3.3V ──[4.7kΩ]── SCL (GPIO 21)
+    3.3V ──[4.7kΩ]── SDA (GPIO 21)
+    3.3V ──[4.7kΩ]── SCL (GPIO 22)
 ```
 
 ### 3. Water Level Sensor (4-20mA) + INA219
@@ -152,8 +152,8 @@ INA219 Shunt Connections (green terminal block)
 | ESP32 GND | INA219 GND | Ground | GND |
 | ESP32 GND | DS18B20 GND × 2 | Ground | GND |
 | ESP32 GPIO 19 | DS18B20 × 2 data | One-wire data | 3.3V (pulled up via 4.7kΩ) |
-| ESP32 GPIO 20 (SDA) | INA219 SDA | I2C data | 3.3V |
-| ESP32 GPIO 21 (SCL) | INA219 SCL | I2C clock | 3.3V |
+| ESP32 GPIO 21 (SDA) | INA219 SDA | I2C data | 3.3V |
+| ESP32 GPIO 22 (SCL) | INA219 SCL | I2C clock | 3.3V |
 | Water Sensor Signal | INA219 IN+ | 4-20mA current | 0-24V analog |
 
 **Simplified ESP32 Pin Usage:**
@@ -162,8 +162,8 @@ ESP32 USB Port    ← Buck Converter USB 5V (main power)
 ESP32 3.3V pin    → INA219 VCC + DS18B20 VCC × 2
 ESP32 GND pin     → All sensors + 24V supply GND (common)
 ESP32 GPIO 19     → DS18B20 × 2 data (with 4.7kΩ pull-up to 3.3V)
-ESP32 GPIO 20 SDA → INA219 SDA
-ESP32 GPIO 21 SCL → INA219 SCL
+ESP32 GPIO 21 SDA → INA219 SDA
+ESP32 GPIO 22 SCL → INA219 SCL
 ```
 
 ## Cable Length Recommendations
@@ -171,7 +171,7 @@ ESP32 GPIO 21 SCL → INA219 SCL
 | Cable | Length | Type | Notes |
 |-------|--------|------|-------|
 | One-Wire (GPIO 19 to sensors) | 3m | Shielded twisted pair | Use external 4.7kΩ pull-up |
-| I2C (GPIO 20/21 to INA219) | 1m | Twisted pair + shield | Keep short if possible |
+| I2C (GPIO 21/22 to INA219) | 1m | Twisted pair + shield | Keep short if possible |
 | Water sensor (to INA219) | 5m (built-in) | 4-20mA current loop | Less susceptible to noise |
 
 ## Signal Line Protection (Optional but Recommended)
@@ -226,7 +226,7 @@ I2C Lines:
 
 ## Assembly Checklist
 
-- [ ] ESP32-C6 Zero board
+- [ ] ESP32-WROOM-32U DevKit (38-pin) board
 - [ ] 2× DS18B20 sensors with waterproof probes
 - [ ] GY-INA219 board
 - [ ] 4-20mA water depth sensor
@@ -245,8 +245,8 @@ I2C Lines:
 
 2. **Continuity Check** (with multimeter)
     - One-Wire: GPIO 19 → all sensor data pins
-    - I2C SDA: GPIO 20 → INA219 SDA
-    - I2C SCL: GPIO 21 → INA219 SCL
+    - I2C SDA: GPIO 21 → INA219 SDA
+    - I2C SCL: GPIO 22 → INA219 SCL
    - All GNDs connected
 
 3. **Power-On Test**

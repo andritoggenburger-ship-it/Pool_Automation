@@ -1,4 +1,4 @@
-# ESP32-C6 Zero Pinout Reference
+# ESP32-WROOM-32U (38-pin) Pinout Reference
 
 ## Quick Reference: Pins Used in This Project
 
@@ -6,11 +6,10 @@
 |------|----------|--------------|----------------------|
 | 3.3V | Power | INA219 VCC, DS18B20 VCC × 2 | Red |
 | GND | Ground | INA219 GND, DS18B20 GND × 2, 24V GND | Black |
-| GPIO 8 | Onboard RGB LED | WS2812 status LED | Purple |
 | GPIO 19 | One-Wire Data | DS18B20 deep + skimmer data lines | Yellow |
-| GPIO 20 | I2C SDA | INA219 SDA | Green |
-| GPIO 21 | I2C SCL | INA219 SCL | Blue |
-| USB | Power | Buck Converter 5V USB output | Red/Black |
+| GPIO 21 | I2C SDA | INA219 SDA | Green |
+| GPIO 22 | I2C SCL | INA219 SCL | Blue |
+| USB / 5V | Power | Buck Converter 5V USB output | Red/Black |
 
 ## Pond Deep Sensor Last-Meter Cable Mapping
 
@@ -22,39 +21,34 @@ For the final 1m segment to the deep DS18B20 sensor, this project uses an Ethern
 
 Keep this mapping unchanged unless rewiring is documented and tested.
 
-## Full Pinout Diagram
+## Board Layout (Generic 38-pin ESP32-WROOM-32U DevKit)
 
 ```
-ESP32-C6 Zero Mini Development Board (with Headers)
-
-TOP VIEW - Left Side (Pin Headers):
-┌─────────────────────────────┐
-│  GND        ← GND (common)  │ Pin 1
-│  GPIO 3     (ADC)           │ Pin 2
-│  GPIO 2     (ADC)           │ Pin 3
-│  GPIO 1     (RTC)           │ Pin 4
-│  GPIO 0     (RTC)           │ Pin 5
-│  GPIO 5     (GPIO)          │ Pin 6
-│  GPIO 6     (GPIO)          │ Pin 7
-│  GPIO 7     (GPIO)          │ Pin 8
-│  GPIO 8   ← WS2812 RGB LED  │ Pin 9
-│  GPIO 10   (GPIO)           │ Pin 11
-│  GPIO 4    (GPIO)           │ Pin 12
-│  GPIO 18   (GPIO)           │ Pin 13
-│  GPIO 19  ← ONE-WIRE DATA   │ Pin 14
-│  GPIO 20  ← I2C SDA         │ Pin 15
-│  GPIO 21  ← I2C SCL         │ Pin 16
-│  3.3V     ← POWER (sensors) │ Pin 17
-│  5V       (from USB)        │ Pin 18
-│  GND      ← GND             │ Pin 19
-└─────────────────────────────┘
-
-TOP VIEW - Right Side (USB and GND):
-┌─────────────────────────────┐
-│  USB ← POWER (from buck)    │ Micro USB
-│  GND ← COMMON GROUND        │ Ground
-└─────────────────────────────┘
+Left header (top to bottom):      Right header (top to bottom):
+CLK   (internal flash, unusable)  5V
+D0    (internal flash, unusable)  CMD  (internal flash, unusable)
+D1    (internal flash, unusable)  D3   (internal flash, unusable)
+GPIO 15                           D2   (internal flash, unusable)
+GPIO 2                            GPIO 13
+GPIO 0                            GND
+GPIO 4  ← STATUS LED              GPIO 14
+GPIO 16                           GPIO 27
+GPIO 12                           GPIO 26
+GPIO 5                            GPIO 25
+GPIO 18                           GPIO 33
+GPIO 19 ← ONE-WIRE DATA           GPIO 32
+GND                               GPIO 35 (input only)
+GPIO 21 ← I2C SDA                 GPIO 34 (input only)
+RX (GPIO3)                        VN (GPIO39, input only)
+TX (GPIO1)                        VP (GPIO36, input only)
+GPIO 22 ← I2C SCL                 EN
+GND                               3V3
 ```
+
+Notes:
+- `CLK`, `D0`, `D1`, `D2`, `D3`, `CMD` pins are wired to the module's internal SPI flash and must never be used for external wiring.
+- `GPIO 34/35/36/39` are input-only (no internal pull-up/down, cannot drive outputs).
+- `GPIO 0`, `2`, `12`, `15` are strapping pins sampled at boot — avoid connecting pull-down/pull-up loads that could force the board into download mode or brown out flash voltage.
 
 ## Detailed Pin Descriptions
 
@@ -62,116 +56,72 @@ TOP VIEW - Right Side (USB and GND):
 
 | Pin | Name | Voltage | Usage | Status |
 |-----|------|---------|-------|--------|
-| 17 | 3.3V | 3.3V | Sensor power (INA219, DS18B20) | **Used** ✅ |
-| 18 | 5V | 5V | Onboard 5V rail (from USB) | Not used in this project |
-| USB | 5V USB | 5V | Main power from buck converter | **Used** ✅ |
-| 1 | GND | 0V | Ground reference | **Used** ✅ (shared) |
-| 19 | GND | 0V | Ground reference | **Used** ✅ (shared) |
+| 3V3 | 3.3V | 3.3V | Sensor power (INA219, DS18B20) | **Used** ✅ |
+| 5V | 5V | 5V | Onboard 5V rail (from USB/DC jack) | Not used directly |
+| USB-C / DC jack | 5V | 5V | Main power from buck converter | **Used** ✅ |
+| GND | GND | 0V | Ground reference | **Used** ✅ (shared) |
 
 ### GPIO Pins - Used
 
-| GPIO | Pin # | I/O | Special Function | Project Use | Status |
-|------|-------|-----|------------------|------------|--------|
-| 8 | 9 | I/O | WS2812 data (board-specific) | Onboard RGB LED | **Used** ✅ |
-| 19 | 14 | I/O | GPIO | One-Wire Data (DS18B20) | **Used** ✅ |
-| 20 | 15 | I/O | GPIO | I2C SDA (INA219) | **Used** ✅ |
-| 21 | 16 | I/O | GPIO | I2C SCL (INA219) | **Used** ✅ |
+| GPIO | I/O | Special Function | Project Use | Status |
+|------|-----|------------------|------------|--------|
+| 19 | I/O | General purpose | One-Wire Data (DS18B20) | **Used** ✅ |
+| 21 | I/O | Default I2C SDA | I2C SDA (INA219) | **Used** ✅ |
+| 22 | I/O | Default I2C SCL | I2C SCL (INA219) | **Used** ✅ |
 
 ### GPIO Pins - Available for Future Use
 
-| GPIO | Pin # | I/O | Special Function | Status |
-|------|-------|-----|------------------|--------|
-| 0 | 5 | I/O | RTC GPIO, can wake from deep sleep | Available |
-| 1 | 4 | I/O | RTC GPIO | Available |
-| 2 | 3 | I/O | ADC, RTC GPIO | Available |
-| 3 | 2 | I/O | ADC, RTC GPIO | Available |
-| 4 | 12 | I/O | GPIO, ADC | Available |
-| 5 | 6 | I/O | GPIO | Available |
-| 6 | 7 | I/O | GPIO | Available |
-| 7 | 8 | I/O | GPIO | Available |
-| 18 | 13 | I/O | GPIO, SPI | Available |
-| 10 | 11 | I/O | GPIO | Available |
+| GPIO | I/O | Special Function | Status |
+|------|-----|------------------|--------|
+| 13 | I/O | GPIO | Available |
+| 14 | I/O | GPIO, ADC | Available |
+| 16 | I/O | GPIO | Available |
+| 18 | I/O | GPIO, SPI | Available |
+| 25 | I/O | GPIO, ADC, DAC | Available |
+| 26 | I/O | GPIO, ADC, DAC | Available |
+| 27 | I/O | GPIO, ADC | Available |
+| 32 | I/O | GPIO, ADC | Available |
+| 33 | I/O | GPIO, ADC | Available |
+| 34, 35, 36, 39 | Input only | ADC only, no output/pull-up | Available for sensing only |
 
-## Physical Layout
+### GPIO Pins - Reserved / Avoid
 
-```
-WaveShare ESP32-C6 Zero Mini Board:
-
-Front View (Component Side):
-┌─────────────────────────────┐
-│  ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎  │ ← Left Pin Header (Pins 1-12)
-│                             │
-│  [Micro USB] [ESP32-C6]     │ ← USB Port, Main Chip
-│    (Power)   (SoC)         │
-│                             │
-│  ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎  │ ← Right Pin Header (Pins 13-19+GND)
-└─────────────────────────────┘
-
-Pin Header Pin Numbers (Left Side):
-Pin 1:  GND
-Pin 2:  GPIO 3
-Pin 3:  GPIO 2
-Pin 4:  GPIO 1
-Pin 5:  GPIO 0
-Pin 6:  GPIO 5
-Pin 7:  GPIO 6
-Pin 8:  GPIO 7
-Pin 9:  GPIO 8  ← WS2812 RGB LED (onboard)
-Pin 10: GPIO 9
-Pin 11: GPIO 10
-Pin 12: GPIO 4
-
-Pin Header Pin Numbers (Right Side):
-Pin 13: GPIO 18
-Pin 14: GPIO 19 ← ONE-WIRE DATA
-Pin 15: GPIO 20
-Pin 16: GPIO 21
-Pin 17: 3.3V   ← POWER
-Pin 18: 5V
-Pin 19: GND
-
-Micro USB: Connected to buck converter 5V USB output
-```
+| GPIO | Reason |
+|------|--------|
+| 0, 2, 12, 15 | Strapping pins sampled at boot |
+| 1 (TX0), 3 (RX0) | Used for USB/serial console |
+| 6, 7, 8, 9, 10, 11 (CLK/D0/D1/D2/D3/CMD) | Wired to internal SPI flash, not usable |
 
 ## Wiring Checklist
 
-- [ ] **ESP32 USB Port** ← Buck Converter USB (5V)
-- [ ] **ESP32 Pin 1 (GND)** ← Common GND from 24V supply
-- [ ] **ESP32 Pin 17 (3.3V)** ← INA219 VCC
-- [ ] **ESP32 Pin 17 (3.3V)** ← DS18B20 Deep VCC + DS18B20 Skimmer VCC
-- [ ] **ESP32 Pin 19 (GND)** ← INA219 GND + both DS18B20 grounds
-- [ ] **ESP32 GPIO 20 (Pin 15)** ← INA219 SDA (I2C data)
-- [ ] **ESP32 GPIO 21 (Pin 16)** ← INA219 SCL (I2C clock)
-- [ ] **ESP32 GPIO 19 (Pin 14)** ← DS18B20 deep + skimmer data (with 4.7kΩ pull-up to Pin 17)
+- [ ] **ESP32 USB/DC Power** ← Buck Converter output (5V)
+- [ ] **ESP32 3.3V** ← INA219 VCC
+- [ ] **ESP32 3.3V** ← DS18B20 Deep VCC + DS18B20 Skimmer VCC
+- [ ] **ESP32 GND** ← INA219 GND + both DS18B20 grounds
+- [ ] **ESP32 GPIO 21** ← INA219 SDA (I2C data)
+- [ ] **ESP32 GPIO 22** ← INA219 SCL (I2C clock)
+- [ ] **ESP32 GPIO 19** ← DS18B20 deep + skimmer data (with 4.7kΩ pull-up to 3.3V)
 - [ ] **24V Supply GND** ← Common GND (tied to ESP32 GND)
 - [ ] **24V Supply +** ← Water Sensor VCC
 
 ## Important Notes
 
-### Pin 17 (3.3V) Power Limitations
-- Provides 3.3V output from onboard regulator
-- Max current: ~200mA typical
+### 3.3V Power Limitations
+- Onboard regulator typically supports a few hundred mA
 - Your project uses:
   - INA219: ~5-10mA
   - DS18B20 × 2: ~2-5mA each (~7mA total typical)
   - **Total: ~20mA (Safe)**
 
-### GPIO 20 & 21 (I2C Pins)
-- Assigned to INA219 in this project to keep GPIO8 available for onboard LED
-- Frequency: 400kHz standard (hardware supports up to 1MHz)
-- Internal pull-ups: ~20-50kΩ
-- May need external 4.7kΩ pull-ups for reliable I2C
+### GPIO 21 & 22 (I2C Pins)
+- These are the default hardware I2C pins on classic ESP32 boards
+- Frequency: 100kHz configured (hardware supports up to 1MHz)
+- Internal pull-ups are weak; external 4.7kΩ pull-ups recommended for reliable I2C
 
 ### GPIO 19 (One-Wire)
 - Must have external 4.7kΩ pull-up resistor
-- **Connect between Pin 17 (3.3V) and Pin 14 (GPIO 19)**
+- **Connect between 3.3V and GPIO 19**
 - Critical for 3m cable runs
-
-### USB Power
-- Micro USB port on bottom of board
-- Provides 5V when connected to buck converter
-- Supplies onboard regulator (produces 3.3V for GPIO)
-- Also charges internal capacitors
 
 ## Connecting Sensors to ESP32
 
@@ -179,46 +129,47 @@ Micro USB: Connected to buck converter 5V USB output
 ```
 INA219 Pin    ESP32 Pin    Function
 ──────────────────────────────────
-VCC        →  Pin 17      3.3V Power
-GND        →  Pin 1 or 19 Ground
-SDA        →  Pin 15      I2C Data
-SCL        →  Pin 16      I2C Clock
+VCC        →  3.3V        3.3V Power
+GND        →  GND         Ground
+SDA        →  GPIO 21     I2C Data
+SCL        →  GPIO 22     I2C Clock
 ```
 
 ### DS18B20 (One-Wire Temperature Sensor)
 ```
 DS18B20 Pin    ESP32 Pin       Function
 ──────────────────────────────────────────
-VCC (Red)   →  Pin 17         3.3V Power
-DQ (Yellow) →  Pin 14 (with 4.7k pull-up to Pin 17)
-GND (Black) →  Pin 1 or 19    Ground
+VCC (Red)   →  3.3V           3.3V Power
+DQ (Yellow) →  GPIO 19 (with 4.7k pull-up to 3.3V)
+GND (Black) →  GND            Ground
 ```
 
-**Both DS18B20 sensors share the same data pin (Pin 14 / GPIO19)**
+**Both DS18B20 sensors share the same data pin (GPIO 19)**
 
-## ESP32-C6 Specifications
+## ESP32-WROOM-32U Specifications
 
 | Spec | Value |
 |------|-------|
-| Processor | RISC-V single-core 160MHz |
-| RAM | 320KB SRAM |
-| Flash | 4MB Quad SPI |
+| Processor | Xtensa dual-core 32-bit LX6, up to 240MHz |
+| RAM | 520KB SRAM |
+| Flash | Typically 4MB Quad SPI |
 | WiFi | 802.11b/g/n 2.4GHz |
-| GPIO | 22 total (19 usable) |
-| I2C | 1 hardware interface |
-| SPI | 2 hardware interfaces |
-| UART | 2 hardware interfaces |
-| ADC | 7 channels, 12-bit |
-| USB | 1 × Micro USB (Serial + Power) |
-| Voltage | 3.3V logic, 5V tolerant on most pins |
+| Bluetooth | Classic + BLE |
+| GPIO | 38-pin board, ~25 usable GPIOs (see reserved list above) |
+| I2C | 2 hardware interfaces |
+| SPI | 4 hardware interfaces (2 usable, others reserved for flash) |
+| UART | 3 hardware interfaces |
+| ADC | 2 × 12-bit SAR ADC (ADC2 shared with WiFi) |
+| Antenna | External via U.FL connector (the "U" in WROOM-32U) |
+| Voltage | 3.3V logic, NOT 5V tolerant |
 
 ## Temperature Operating Range
-- **Storage**: -40°C to +85°C
+- **Storage**: -40°C to +85°C (module dependent)
 - **Operating**: -40°C to +85°C
 - Suitable for outdoor pond monitoring
 
 ## Further Reading
 
-- [ESP32-C6 Datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-c6_datasheet_en.pdf)
-- [WaveShare ESP32-C6 Zero Manual](https://www.waveshare.com/wiki/ESP32-C6_Zero)
+- [ESP32 Series Datasheet](https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf)
+- [ESP32-WROOM-32U Datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32u_datasheet_en.pdf)
 - Pinout images are available in the WaveShare wiki above

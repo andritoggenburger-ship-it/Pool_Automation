@@ -52,7 +52,7 @@ Use [pond-node-1-bare.esphome.yaml](c:/Users/toggenan/OneDrive%20-%20BELIMO%20Au
 ### 2.2 Verify Current Device Behavior
 
 - One-wire bus: `GPIO19`
-- INA219: `GPIO20` / `GPIO21`
+- INA219: `GPIO21` / `GPIO22`
 - Temperature entities:
   - `Pond Water Temp Deep`
   - `Pond Water Temp Skimmer`

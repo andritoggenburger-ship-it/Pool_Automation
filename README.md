@@ -18,15 +18,13 @@ Current ESPHome-based pond monitoring configuration with:
 | Component | GPIO Pin | Function |
 |-----------|----------|----------|
 | DS18B20 (1-wire) | GPIO 19 | Data line (requires 4.7kΩ pull-up to 3.3V) |
-| I2C SDA | GPIO 20 | I2C Data |
-| I2C SCL | GPIO 21 | I2C Clock |
-
-Note: GPIO 8 is reserved for the onboard WS2812 RGB LED in the current ESPHome heartbeat setup.
+| I2C SDA | GPIO 21 | I2C Data |
+| I2C SCL | GPIO 22 | I2C Clock |
 
 ### Wiring Diagram
 
 ```
-ESP32-C6 Zero
+ESP32-WROOM-32U DevKit (38-pin)
 ┌─────────────────────────────────────────┐
 │                                         │
 │  GPIO 19 ──[4.7kΩ]──┬── +3.3V         │
@@ -34,8 +32,8 @@ ESP32-C6 Zero
 │           ├─ DS18B20 Deep (data pin)   │
 │           └─ DS18B20 Skimmer (data pin)│
 │                                         │
-│  GPIO 20 ──────── SDA ─── INA219       │
-│  GPIO 21 ──────── SCL ─── INA219       │
+│  GPIO 21 ──────── SDA ─── INA219       │
+│  GPIO 22 ──────── SCL ─── INA219       │
 │  GND     ──────── GND                  │
 │  3.3V    ──────── VCC                  │
 │                                         │
@@ -80,7 +78,7 @@ The active device configuration is stored in [pond-node-1-bare.esphome.yaml](c:/
 ### 2. Key ESPHome Behavior
 
 - One-wire bus on `GPIO19`
-- INA219 on `GPIO20`/`GPIO21`
+- INA219 on `GPIO21`/`GPIO22`
 - Raw current is filtered with median plus exponential moving average
 - Water depth uses calibrated linear mapping with `depth_cal_max_m = 3.0769` and `depth_cal_offset_m = 0.94`
 - Displayed water depth only changes after the new value stays at least `0.01 m` away for `5 minutes`
