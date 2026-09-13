@@ -51,7 +51,7 @@ Use [pond-node-1-bare.esphome.yaml](c:/Users/toggenan/OneDrive%20-%20BELIMO%20Au
 
 ### 2.2 Verify Current Device Behavior
 
-- One-wire bus: `GPIO19`
+- One-wire bus: `GPIO23`
 - INA219: `GPIO21` / `GPIO22`
 - Temperature entities:
   - `Pond Water Temp Deep`
@@ -92,7 +92,7 @@ Once online, the ESPHome integration should expose:
 
 - Deep sensor address: `0x08000000ca532328`
 - Skimmer sensor address: `0x68000000ca317728`
-- Both are on the same GPIO19 one-wire bus.
+- Both are on the same GPIO23 one-wire bus.
 
 ## Step 4: Example Dashboard Cards
 
@@ -370,7 +370,7 @@ The current ESPHome config exposes a restart button in Home Assistant:
 
 **Cause 2: WiFi or sensor issue**
 - Check WiFi signal at pond
-- Confirm one-wire pull-up and GPIO19 wiring
+- Confirm one-wire pull-up and GPIO23 wiring
 - Confirm INA219 is still visible on I2C
 
 ### Issue: ESPHome Device Not Updating

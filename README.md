@@ -17,7 +17,7 @@ Current ESPHome-based pond monitoring configuration with:
 
 | Component | GPIO Pin | Function |
 |-----------|----------|----------|
-| DS18B20 (1-wire) | GPIO 19 | Data line (requires 4.7kΩ pull-up to 3.3V) |
+| DS18B20 (1-wire) | GPIO 23 | Data line (requires 4.7kΩ pull-up to 3.3V) |
 | I2C SDA | GPIO 21 | I2C Data |
 | I2C SCL | GPIO 22 | I2C Clock |
 
@@ -27,7 +27,7 @@ Current ESPHome-based pond monitoring configuration with:
 ESP32-WROOM-32U DevKit (38-pin)
 ┌─────────────────────────────────────────┐
 │                                         │
-│  GPIO 19 ──[4.7kΩ]──┬── +3.3V         │
+│  GPIO 23 ──[4.7kΩ]──┬── +3.3V         │
 │           │         │                  │
 │           ├─ DS18B20 Deep (data pin)   │
 │           └─ DS18B20 Skimmer (data pin)│
@@ -49,9 +49,9 @@ ESP32-WROOM-32U DevKit (38-pin)
 
 ### Temperature Sensors (DS18B20)
 
-- Both sensors share the **same GPIO 19 data line**
+- Both sensors share the **same GPIO 23 data line**
 - Each sensor needs separate GND and VCC connections
-- **IMPORTANT**: Add external 4.7kΩ pull-up resistor between GPIO 19 and 3.3V
+- **IMPORTANT**: Add external 4.7kΩ pull-up resistor between GPIO 23 and 3.3V
   - Place resistor near ESP32
 - Installed sensor names in Home Assistant:
   - `Pond Water Temp Deep`
@@ -77,7 +77,7 @@ The active device configuration is stored in [pond-node-1-bare.esphome.yaml](c:/
 
 ### 2. Key ESPHome Behavior
 
-- One-wire bus on `GPIO19`
+- One-wire bus on `GPIO23`
 - INA219 on `GPIO21`/`GPIO22`
 - Raw current is filtered with median plus exponential moving average
 - Water depth uses calibrated linear mapping with `depth_cal_max_m = 3.0769` and `depth_cal_offset_m = 0.94`
@@ -106,7 +106,7 @@ The repository still contains MicroPython-oriented files such as `main.py` and s
 
 ## Troubleshooting Notes
 
-- If one-wire becomes unstable, verify the 4.7k pull-up to 3.3V and re-check GPIO19 continuity.
+- If one-wire becomes unstable, verify the 4.7k pull-up to 3.3V and re-check GPIO23 continuity.
 - If temperature sensors appear as `unavailable`, confirm both DS18B20 addresses in the YAML match the installed probes.
 - If depth is offset by a constant amount, adjust `depth_cal_offset_m`.
 - If depth error changes across the range, adjust `depth_cal_max_m` instead.

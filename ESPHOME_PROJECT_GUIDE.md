@@ -30,10 +30,10 @@ Important note:
 ## Hardware Mapping
 
 Use the same pin plan you already defined:
-- One-wire data: GPIO19
+- One-wire data: GPIO23
 - I2C SDA: GPIO21
 - I2C SCL: GPIO22
-- DS18B20 pull-up: external 4.7k resistor from GPIO19 to 3.3V
+- DS18B20 pull-up: external 4.7k resistor from GPIO23 to 3.3V
 
 Power topology:
 - 24V supply powers water sensor directly
@@ -93,7 +93,7 @@ Current config summary:
 ```yaml
 one_wire:
   - platform: gpio
-    pin: GPIO19
+    pin: GPIO23
 
 i2c:
   sda: GPIO21
@@ -181,7 +181,7 @@ This is the ESPHome equivalent of appliance-like update behavior.
 - Keep external 4.7k pull-up.
 - Use twisted pair or shielded cable.
 - Keep ground clean and common.
-- Current active data pin is GPIO19.
+- Current active data pin is GPIO23.
 
 2. INA219 measurement path:
 - Ensure current loop actually passes through INA219 shunt path.
@@ -212,7 +212,7 @@ Problem: INA219 not found
 
 Problem: DS18B20 missing or unstable
 - Verify 4.7k pull-up to 3.3V.
-- Confirm data pin is GPIO19.
+- Confirm data pin is GPIO23.
 - Check cable joins and waterproof connectors.
 
 Problem: Depth wrong but current looks correct

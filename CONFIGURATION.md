@@ -5,7 +5,7 @@ This file documents the older `main.py`-based MicroPython setup.
 The active pond node configuration is now ESPHome-based and lives in [pond-node-1-bare.esphome.yaml](c:/Users/toggenan/OneDrive%20-%20BELIMO%20Automation%20AG/Desktop/Pool-Automation/pond-node-1-bare.esphome.yaml).
 
 Current active ESPHome differences from the legacy template:
-- One-wire data pin is `GPIO19`
+- One-wire data pin is `GPIO23`
 - I2C pins are `GPIO21` / `GPIO22`
 - Two DS18B20 sensors are used: deep and skimmer
 - Home Assistant integration uses ESPHome native API

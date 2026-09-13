@@ -6,7 +6,7 @@
 |------|----------|--------------|----------------------|
 | 3.3V | Power | INA219 VCC, DS18B20 VCC × 2 | Red |
 | GND | Ground | INA219 GND, DS18B20 GND × 2, 24V GND | Black |
-| GPIO 19 | One-Wire Data | DS18B20 deep + skimmer data lines | Yellow |
+| GPIO 23 | One-Wire Data | DS18B20 deep + skimmer data lines | Yellow |
 | GPIO 21 | I2C SDA | INA219 SDA | Green |
 | GPIO 22 | I2C SCL | INA219 SCL | Blue |
 | USB / 5V | Power | Buck Converter 5V USB output | Red/Black |
@@ -36,7 +36,7 @@ GPIO 16                           GPIO 27
 GPIO 12                           GPIO 26
 GPIO 5                            GPIO 25
 GPIO 18                           GPIO 33
-GPIO 19 ← ONE-WIRE DATA           GPIO 32
+GPIO 23 ← ONE-WIRE DATA           GPIO 32
 GND                               GPIO 35 (input only)
 GPIO 21 ← I2C SDA                 GPIO 34 (input only)
 RX (GPIO3)                        VN (GPIO39, input only)
@@ -100,7 +100,7 @@ Notes:
 - [ ] **ESP32 GND** ← INA219 GND + both DS18B20 grounds
 - [ ] **ESP32 GPIO 21** ← INA219 SDA (I2C data)
 - [ ] **ESP32 GPIO 22** ← INA219 SCL (I2C clock)
-- [ ] **ESP32 GPIO 19** ← DS18B20 deep + skimmer data (with 4.7kΩ pull-up to 3.3V)
+- [ ] **ESP32 GPIO 23** ← DS18B20 deep + skimmer data (with 4.7kΩ pull-up to 3.3V)
 - [ ] **24V Supply GND** ← Common GND (tied to ESP32 GND)
 - [ ] **24V Supply +** ← Water Sensor VCC
 
@@ -118,9 +118,9 @@ Notes:
 - Frequency: 100kHz configured (hardware supports up to 1MHz)
 - Internal pull-ups are weak; external 4.7kΩ pull-ups recommended for reliable I2C
 
-### GPIO 19 (One-Wire)
+### GPIO 23 (One-Wire)
 - Must have external 4.7kΩ pull-up resistor
-- **Connect between 3.3V and GPIO 19**
+- **Connect between 3.3V and GPIO 23**
 - Critical for 3m cable runs
 
 ## Connecting Sensors to ESP32
@@ -140,11 +140,11 @@ SCL        →  GPIO 22     I2C Clock
 DS18B20 Pin    ESP32 Pin       Function
 ──────────────────────────────────────────
 VCC (Red)   →  3.3V           3.3V Power
-DQ (Yellow) →  GPIO 19 (with 4.7k pull-up to 3.3V)
+DQ (Yellow) →  GPIO 23 (with 4.7k pull-up to 3.3V)
 GND (Black) →  GND            Ground
 ```
 
-**Both DS18B20 sensors share the same data pin (GPIO 19)**
+**Both DS18B20 sensors share the same data pin (GPIO 23)**
 
 ## ESP32-WROOM-32U Specifications
 

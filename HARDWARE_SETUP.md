@@ -58,7 +58,7 @@ ESP32 GND pin ────► All sensor grounds (common GND)
 **Single Bus Configuration** (both sensors share same data line)
 
 ```
-ESP32 GPIO 19 ──[4.7kΩ Pull-up]── +3.3V
+ESP32 GPIO 23 ──[4.7kΩ Pull-up]── +3.3V
       |
     ├─── DS18B20 Deep
       |     ├─ Data (middle pin)
@@ -83,7 +83,7 @@ This project mapping is intentionally kept here as-built so it is easy to reprod
 
 **Pull-up Resistor Installation:**
 ```
-+3.3V ───[4.7kΩ]───┬─── GPIO 19
++3.3V ───[4.7kΩ]───┬─── GPIO 23
                    │
               100nF capacitor
                    │
@@ -151,7 +151,7 @@ INA219 Shunt Connections (green terminal block)
 | 24V Supply - | Water Sensor GND | Water sensor return | GND |
 | ESP32 GND | INA219 GND | Ground | GND |
 | ESP32 GND | DS18B20 GND × 2 | Ground | GND |
-| ESP32 GPIO 19 | DS18B20 × 2 data | One-wire data | 3.3V (pulled up via 4.7kΩ) |
+| ESP32 GPIO 23 | DS18B20 × 2 data | One-wire data | 3.3V (pulled up via 4.7kΩ) |
 | ESP32 GPIO 21 (SDA) | INA219 SDA | I2C data | 3.3V |
 | ESP32 GPIO 22 (SCL) | INA219 SCL | I2C clock | 3.3V |
 | Water Sensor Signal | INA219 IN+ | 4-20mA current | 0-24V analog |
@@ -161,7 +161,7 @@ INA219 Shunt Connections (green terminal block)
 ESP32 USB Port    ← Buck Converter USB 5V (main power)
 ESP32 3.3V pin    → INA219 VCC + DS18B20 VCC × 2
 ESP32 GND pin     → All sensors + 24V supply GND (common)
-ESP32 GPIO 19     → DS18B20 × 2 data (with 4.7kΩ pull-up to 3.3V)
+ESP32 GPIO 23     → DS18B20 × 2 data (with 4.7kΩ pull-up to 3.3V)
 ESP32 GPIO 21 SDA → INA219 SDA
 ESP32 GPIO 22 SCL → INA219 SCL
 ```
@@ -170,7 +170,7 @@ ESP32 GPIO 22 SCL → INA219 SCL
 
 | Cable | Length | Type | Notes |
 |-------|--------|------|-------|
-| One-Wire (GPIO 19 to sensors) | 3m | Shielded twisted pair | Use external 4.7kΩ pull-up |
+| One-Wire (GPIO 23 to sensors) | 3m | Shielded twisted pair | Use external 4.7kΩ pull-up |
 | I2C (GPIO 21/22 to INA219) | 1m | Twisted pair + shield | Keep short if possible |
 | Water sensor (to INA219) | 5m (built-in) | 4-20mA current loop | Less susceptible to noise |
 
@@ -179,7 +179,7 @@ ESP32 GPIO 22 SCL → INA219 SCL
 For harsh outdoor/pond environment:
 
 ```
-GPIO 19 Data Line:
+GPIO 23 Data Line:
     ESP32 ──[100Ω]──┬─── Sensor Data
                     │
                   Ferrite bead (optional)
@@ -244,7 +244,7 @@ I2C Lines:
    - Correct polarity on power
 
 2. **Continuity Check** (with multimeter)
-    - One-Wire: GPIO 19 → all sensor data pins
+    - One-Wire: GPIO 23 → all sensor data pins
     - I2C SDA: GPIO 21 → INA219 SDA
     - I2C SCL: GPIO 22 → INA219 SCL
    - All GNDs connected
@@ -274,7 +274,7 @@ I2C Lines:
 ### Problem: Sensors not detected
 - Check GPIO pin numbers match code
 - Verify pull-up resistor present for one-wire
-- Test with multimeter: GPIO 19 should be ~3.3V when idle
+- Test with multimeter: GPIO 23 should be ~3.3V when idle
 - For I2C: both lines should be ~3.3V when idle
 
 ### Problem: Intermittent readings
