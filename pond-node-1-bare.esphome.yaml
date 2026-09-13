@@ -11,7 +11,7 @@ substitutions:
 
   # DS18B20 calibration/discovery values
   ds18_addr_1: "0x08000000ca532328"  # Deep sensor
-  ds18_addr_2: "0x68000000ca317728"  # Skimmer sensor
+  ds18_addr_2: "0x8f000000c9783728"  # Skimmer sensor
 
 esphome:
   name: ${node_name}
