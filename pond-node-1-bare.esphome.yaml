@@ -58,7 +58,7 @@ one_wire:
     # data (yellow) -> Ethernet green
     # ground -> Ethernet green/white
     # 3.3V -> Ethernet blue
-    pin: GPIO19
+    pin: GPIO23
 
 globals:
   - id: pond_temp_deep_error_count
