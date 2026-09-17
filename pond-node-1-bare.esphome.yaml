@@ -54,10 +54,14 @@ i2c:
 
 one_wire:
   - platform: gpio
+    id: one_wire_deep
     # Pond deep DS18B20 last-meter Ethernet mapping:
     # data (yellow) -> Ethernet green
     # ground -> Ethernet green/white
     # 3.3V -> Ethernet blue
+    pin: GPIO27
+  - platform: gpio
+    id: one_wire_skimmer
     pin: GPIO23
 
 globals:
@@ -211,6 +215,7 @@ sensor:
   - platform: dallas_temp
     id: pond_temp_deep_raw
     internal: true
+    one_wire_id: one_wire_deep
     address: ${ds18_addr_1}
     resolution: 11
     update_interval: never
@@ -218,6 +223,7 @@ sensor:
   - platform: dallas_temp
     id: pond_temp_skimmer_raw
     internal: true
+    one_wire_id: one_wire_skimmer
     address: ${ds18_addr_2}
     resolution: 11
     update_interval: never
