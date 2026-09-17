@@ -10,7 +10,7 @@ substitutions:
   depth_cal_offset_m: "0.94"   # Calibrated trim offset after scaling
 
   # DS18B20 calibration/discovery values
-  ds18_addr_1: "0x08000000ca532328"  # Deep sensor
+  ds18_addr_1: "0xda000000ca936428"  # Deep sensor
   ds18_addr_2: "0x8f000000c9783728"  # Skimmer sensor
 
 esphome:
